@@ -3,5 +3,5 @@
  * configuration file
  */
 
-// $db_url = "mysql://user@server/dbname";
-$db_url = "mysql://tadeco_usr@localhost/tadeco";
+// db_url = "mysql://user@server/dbname";
+define("DB_URL","mysql://tadeco_usr@localhost/tadeco");

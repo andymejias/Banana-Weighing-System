@@ -16,6 +16,8 @@ $service->handle();
 function do_post($server_variables = array(), $args = array()){
 	$json = json_decode($args["log"]);
 	
+	Db = new Db();
+	
 	print("<pre>".print_r($server_variables, true)."</pre>");
 	print("<pre>".print_r($args, true)."</pre>");
 	print("<pre>");

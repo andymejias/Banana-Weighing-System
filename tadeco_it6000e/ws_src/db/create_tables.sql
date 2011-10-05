@@ -27,6 +27,11 @@ create table records (
 	created date not null,
 	farm_id int not null,
 	parcel_id int not null,
+	lot_id int not null,
+	gang_id int not null,
+	ribbon_id int not null,
+	weigh_date date not null,
+	weigh_time timestamp not null,
 	weight int not null,
 	primary key (id)
 )

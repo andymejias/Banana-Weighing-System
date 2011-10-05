@@ -1,0 +1,18 @@
+#
+#	Web service configuration
+#
+
+
+#<FilesMatch "\.(inc|php)$">
+#  Order allow,deny
+#</FilesMatch>
+
+Options -Indexes
+
+DirectoryIndex index.php
+  
+RewriteEngine on
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !=/favicon.ico
+RewriteRule ^ index.php [L]

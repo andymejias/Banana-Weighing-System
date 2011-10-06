@@ -31,8 +31,7 @@ create table records (
 	gang_id int not null,
 	ribbon_id int not null,
 	weigh_date date not null,
-	weigh_time timestamp not null,
-	weight int not null,
+	weight decimal(12,6) not null,
 	primary key (id)
 )
 engine innodb

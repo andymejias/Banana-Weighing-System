@@ -1,4 +1,8 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', TRUE);
+ini_set('display_startup_errors', TRUE);
+
 $json = "{\"param1\":\"value1\",\"param2\":\"value2\"}";
 ?>
 <DOCTYPE html>

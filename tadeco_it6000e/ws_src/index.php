@@ -26,13 +26,16 @@ function do_post($server_variables = array(), $args = array()){
 			"arguments"=>$args
 		));
 		
-		$farm_id = 0;
-		$parcel_id = 0;
-		$lot_id = 0;
-		$gang_id = 0;
-		$ribbon_id = 0;
-		$weigh_date = date("MM/dd/yyyy");
-		$weight = 0;
+		$data = json_decode($args["post_data"]);
+
+		$farm_id = $data["farm_id"];
+		$parcel_id = $data["parcel_id"];
+		$lot_id = $data["lot_id"];
+		$gang_id = $data["gang_id"];
+		$ribbon_id = $data["ribbon_id"];
+		$age = $data["age"];
+		$weigh_date = $data["weigh_date"]; //date("MM/dd/yyyy");
+		$weight = $data["weight"];
 		
 		$db->log_data(
 			$farm_id,
@@ -40,11 +43,13 @@ function do_post($server_variables = array(), $args = array()){
 			$lot_id,
 			$gang_id,
 			$ribbon_id,
+			$age,
 			$weigh_date,
 			$weight
 		);
 		
-		die("ok");
+		header("HTTP/1.0 200 OK");
+		exit();
 		
 	} catch(Exception $e){
 		die("<pre>".print_r($e, true)."</pre>");

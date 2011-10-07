@@ -61,13 +61,14 @@ SQL;
 		$parcel_id, 
 		$lot_id, 
 		$gang_id, 
-		$ribbon_id, 
+		$ribbon_id,
+		$age,
 		$weigh_date, 
 		$weight
 		){
 		$sql = <<<SQL
-insert into records (created, farm_id, parcel_id, lot_id, gang_id, ribbon_id, weigh_date, weight) values 
-(now(), :farm_id, :parcel_id, :lot_id, :gang_id, :ribbon_id, :weigh_date, :weight)
+insert into records (created, farm_id, parcel_id, lot_id, gang_id, ribbon_id, age, weigh_date, weight) values 
+(now(), :farm_id, :parcel_id, :lot_id, :gang_id, :ribbon_id, :age, :weigh_date, :weight)
 SQL;
 		$stmt = $this->_cn->prepare($sql);
 		if($stmt){
@@ -76,6 +77,7 @@ SQL;
 			$stmt->bindParam(":lot_id", $lot_id, PDO::PARAM_INT);
 			$stmt->bindParam(":gang_id", $gang_id, PDO::PARAM_INT);
 			$stmt->bindParam(":ribbon_id", $ribbon_id, PDO::PARAM_INT);
+			$stmt->bindParam(":age", $age, PDO::PARAM_INT);
 			$stmt->bindParam(":weigh_date", $weigh_date, PDO::PARAM_STR);
 			$stmt->bindParam(":weight", $weight);
 			if(!$stmt->execute()){

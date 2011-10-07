@@ -30,6 +30,7 @@ create table records (
 	lot_id int not null,
 	gang_id int not null,
 	ribbon_id int not null,
+	age int not null,
 	weigh_date date not null,
 	weight decimal(12,6) not null,
 	primary key (id)

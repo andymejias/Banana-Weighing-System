@@ -15,7 +15,7 @@ create table log (
 	id int not null auto_increment comment 'pk, log id',
 	type_id int not null comment 'fk, log_type.id',
 	created date not null,
-	entry varchar(1000) not null,
+	entry varchar(4000) not null,
 	primary key (id),
 	foreign key (type_id) references log_type(id)
 )

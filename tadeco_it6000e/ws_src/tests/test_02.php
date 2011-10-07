@@ -23,6 +23,7 @@ try {
 	$lot_id = 0;
 	$gang_id = 0;
 	$ribbon_id = 0;
+	$age = 0;
 	$weigh_date = date("MM/dd/yyyy");
 	$weight = 0;
 	
@@ -32,6 +33,7 @@ try {
 		$lot_id,
 		$gang_id,
 		$ribbon_id,
+		$age,
 		$weigh_date,
 		$weight
 	);

@@ -3,7 +3,8 @@ error_reporting(E_ALL);
 ini_set('display_errors', TRUE);
 ini_set('display_startup_errors', TRUE);
 
-$json = "{\"param1\":\"value1\",\"param2\":\"value2\"}";
+
+$json = "{\"fm\":\"999\",\"bk\":\"999\",\"pc\":\"99\",\"wk\":\"99\",\"wr\":\"99999\",\"cc\":\"999\",\"dt\":\"10/07/2011 10:10\"}";
 ?>
 <DOCTYPE html>
 <html>

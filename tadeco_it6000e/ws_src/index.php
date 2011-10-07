@@ -16,7 +16,7 @@ $service = new RestService($callbacks);
 $service->handle();
 
 function do_post($server_variables = array(), $args = array()){
-	$json = json_decode($args["log"]);
+	$data = json_decode($args["log"]);
 	
 	try {
 		$db = Db::get_instance();
@@ -25,17 +25,15 @@ function do_post($server_variables = array(), $args = array()){
 			"server_variables"=>$server_variables,
 			"arguments"=>$args
 		));
-		
-		$data = json_decode($args["post_data"]);
 
-		$farm_id = $data["farm_id"];
-		$parcel_id = $data["parcel_id"];
-		$lot_id = $data["lot_id"];
-		$gang_id = $data["gang_id"];
-		$ribbon_id = $data["ribbon_id"];
-		$age = $data["age"];
-		$weigh_date = $data["weigh_date"]; //date("MM/dd/yyyy");
-		$weight = $data["weight"];
+		$farm_id = $data->fm;
+		$parcel_id = $data->pc;
+		$lot_id = $data->bk;
+		$gang_id = $data->cc;
+		$ribbon_id = $data->wk;
+		$age = $data->wk;
+		$weigh_date = $data->dt;
+		$weight = $data->wr;
 		
 		$db->log_data(
 			$farm_id,
@@ -49,6 +47,7 @@ function do_post($server_variables = array(), $args = array()){
 		);
 		
 		header("HTTP/1.0 200 OK");
+		print("ok");
 		exit();
 		
 	} catch(Exception $e){

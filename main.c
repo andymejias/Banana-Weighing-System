@@ -1,7 +1,34 @@
 
+/* ****************************************************************** */
+/* ****************************************************************** */
+/* *                                                                * */
+/* *                                                                * */
+/* *                                                                * */
+/* *                        RTC-Program                             * */
+/* *                                                                * */
+/* *                 Copyright by Clinicom                          * */
+/* *                                                                * */
+/* ****************************************************************** */
+/* ****************************************************************** */
+
+/*
+
+ Costumer:                TADECO                                              
+
+ Project:                IT6000-E TADECO Banana Weighing System
+
+ Creation date:          Sept 2011
+
+ Author:                 Edu Mejias, Ferd Tomale
+
+
+*/
+
+
+
 
 #include "TadecoDBase.c"
-
+#include "http_client.h"
 
 
 /* ************************************************************** */
@@ -63,7 +90,7 @@
           
           string rFarmNo[2];
           string r2FarmNo[2];
-          
+          string r3FarmNo[2];          
          
           
 /* ************************************************************** */
@@ -72,6 +99,7 @@
 /*                                                                */
 /* ************************************************************** */
 
+#include "http_client.c"
 
 void ribbonColorValue(void){
 
@@ -252,6 +280,13 @@ void saveBananaBunchWeigh(decimal _crnet, decimal _tw){
        int countAge11;
        int countAge12;
        
+       countAge7=0;
+       countAge8=0;
+       countAge9=0;
+       countAge10=0;
+       countAge11=0;
+       countAge12=0;
+       
        
        
        LastBananaBunchSetting.SID=1;
@@ -268,10 +303,8 @@ void saveBananaBunchWeigh(decimal _crnet, decimal _tw){
               
        BananaBunch.SN = sn;
        BananaBunch.WR = _crnet;
-       BananaBunch.WK = ribbonColor;
-       //BananaBunch.FM = farmNo;
-       BananaBunch.FM = adj(farmNo,3,0);
-       //BananaBunch.PC = parcelaNo;
+       BananaBunch.WK = ribbonColor;       
+       BananaBunch.FM = adj(farmNo,3,0);  
        BananaBunch.PC = adj(parcelaNo,3,0);
        BananaBunch.BK = lotNo;
        BananaBunch.CC = gangNo;
@@ -283,7 +316,30 @@ void saveBananaBunchWeigh(decimal _crnet, decimal _tw){
               delay(5.0);
               
               break;                       
+        } else {
+          // do http post
+          // in post data:
+          // { = %7B
+          // " = %22
+          // : = %3A
+          // , = %2C
+          // } = %7D
+          // log={"param1":"value1","param2":"value2"}
+          // becomes
+          // log=%7B%22param1%22%3A%22value1%22%2C%22param2%22%3A%22value2%22%7D 
+          
+          http_client_post(
+            8,
+            "192.168.2.100", 
+            "80", 
+            "index.php", 
+            "tadecows.local", 
+            //"log=%7B%22fm%22%3A%22999%22%2C%22bk%22%3A%22999%22;%2C%22pc%22%3A%2299%22%2C%22wk%22%2C%2299%22%2C%22wr%22%2C%2299999%22%2C%22cc%22%2C%22999%22%2C%22dt%22%3A%2210%2F07%2F2011+10%3A10%22%7D"
+            "log=%7B%22fm%22%3A%22"+adj(farmNo,3,0)+"%22%2C%22bk%22%3A%22"+lotNo+"%22%2C%22pc%22%3A%22"+adj(parcelaNo,3,0)+"%22%2C%22wk%22%2C%22"+adj(ribbonColor,3,0)+"%22%2C%22wr%22%2C%22"+adj(_crnet,5,1)+"%22%2C%22cc%22%2C%22"+gangNo+"%22%2C%22dt%22%3A%2210%2F07%2F2011+10%3A10%22%7D"
+          );
         }
+       
+
        
        
        switch(farmNo){
@@ -306,6 +362,8 @@ void saveBananaBunchWeigh(decimal _crnet, decimal _tw){
                             totalParcelaWeight = _crnet+totalParcelaWeight;            
                             ParcelaDB.parcelaWT=totalParcelaWeight;
                             ParcelaDB.parcelaBunches=parcela88count;                            
+                            
+                            minbunchnet = ParcelaDB.minBunch;                            
                             if(minbunchnet==0){ minbunchnet=_crnet;              
                             }else{ minbunchnet = ParcelaDB.minBunch; }                         
                             
@@ -316,11 +374,10 @@ void saveBananaBunchWeigh(decimal _crnet, decimal _tw){
                             
                             ParcelaDB.maxBunch = maxbunchnet;
                             
-                            //counting by Age                    
-                            
+                            //counting by Age                                                
                             if(ribbonColor==7){
                                     countAge7 = ParcelaDB.bWeek7;
-                                    countAge7++;
+                                    countAge7=countAge7 + 1;
                                     ParcelaDB.bWeek7=countAge7; 
                             }else if(ribbonColor==8){
                                     countAge8 = ParcelaDB.bWeek8;
@@ -356,14 +413,17 @@ void saveBananaBunchWeigh(decimal _crnet, decimal _tw){
                             totalParcelaWeight = _crnet+totalParcelaWeight;            
                             ParcelaDB.parcelaWT=totalParcelaWeight;
                             ParcelaDB.parcelaBunches=parcela89count;
-                             if(minbunchnet==0){ minbunchnet=_crnet;              
+                            
+                            minbunchnet = ParcelaDB.minBunch;
+                            if(minbunchnet==0){ minbunchnet=_crnet;              
                             }else{ minbunchnet = ParcelaDB.minBunch; }                         
                             
                             if(minbunchnet > _crnet){ minbunchnet = _crnet ;}
                             ParcelaDB.minBunch = minbunchnet;
                             maxbunchnet = ParcelaDB.maxBunch;
                                 if(maxbunchnet < _crnet){ maxbunchnet = _crnet ;}        
-                            ParcelaDB.maxBunch = maxbunchnet;                      
+                            ParcelaDB.maxBunch = maxbunchnet;
+                            
                             
                              //counting by Age                    
                             
@@ -405,7 +465,9 @@ void saveBananaBunchWeigh(decimal _crnet, decimal _tw){
                             totalParcelaWeight = _crnet+totalParcelaWeight;            
                             ParcelaDB.parcelaWT=totalParcelaWeight;
                             ParcelaDB.parcelaBunches=parcela90count;
-                             if(minbunchnet==0){ minbunchnet=_crnet;              
+                            
+                            minbunchnet = ParcelaDB.minBunch;                            
+                            if(minbunchnet==0){ minbunchnet=_crnet;              
                             }else{ minbunchnet = ParcelaDB.minBunch; }                         
                             
                             if(minbunchnet > _crnet){ minbunchnet = _crnet ;}
@@ -470,7 +532,9 @@ void saveBananaBunchWeigh(decimal _crnet, decimal _tw){
                             totalParcelaWeight = _crnet+totalParcelaWeight;            
                             ParcelaDB.parcelaWT=totalParcelaWeight;
                             ParcelaDB.parcelaBunches=parcela91count;
-                             if(minbunchnet==0){ minbunchnet=_crnet;              
+                            
+                            minbunchnet = ParcelaDB.minBunch;                            
+                            if(minbunchnet==0){ minbunchnet=_crnet;              
                             }else{ minbunchnet = ParcelaDB.minBunch; }                         
                             
                             if(minbunchnet > _crnet){ minbunchnet = _crnet ;}
@@ -519,6 +583,8 @@ void saveBananaBunchWeigh(decimal _crnet, decimal _tw){
                             totalParcelaWeight = _crnet+totalParcelaWeight;            
                             ParcelaDB.parcelaWT=totalParcelaWeight;
                             ParcelaDB.parcelaBunches=parcela92count;
+
+                            minbunchnet = ParcelaDB.minBunch;                            
                              if(minbunchnet==0){ minbunchnet=_crnet;              
                             }else{ minbunchnet = ParcelaDB.minBunch; }                         
                             
@@ -568,7 +634,9 @@ void saveBananaBunchWeigh(decimal _crnet, decimal _tw){
                             totalParcelaWeight = _crnet+totalParcelaWeight;            
                             ParcelaDB.parcelaWT=totalParcelaWeight;
                             ParcelaDB.parcelaBunches=parcela93count;
-                             if(minbunchnet==0){ minbunchnet=_crnet;              
+
+                            minbunchnet = ParcelaDB.minBunch;                            
+                            if(minbunchnet==0){ minbunchnet=_crnet;              
                             }else{ minbunchnet = ParcelaDB.minBunch; }                         
                             
                             if(minbunchnet > _crnet){ minbunchnet = _crnet ;}
@@ -632,7 +700,8 @@ void saveBananaBunchWeigh(decimal _crnet, decimal _tw){
                             ParcelaDB.parcelaWT=totalParcelaWeight;
                             ParcelaDB.parcelaBunches=parcela94count;
                             
-                             if(minbunchnet > _crnet){ minbunchnet = _crnet ;}
+                            minbunchnet = ParcelaDB.minBunch;                                      
+                            if(minbunchnet > _crnet){ minbunchnet = _crnet ;}
                             ParcelaDB.minBunch = minbunchnet;
                             maxbunchnet = ParcelaDB.maxBunch;
                                 if(maxbunchnet < _crnet){ maxbunchnet = _crnet ;}        
@@ -678,6 +747,8 @@ void saveBananaBunchWeigh(decimal _crnet, decimal _tw){
                             totalParcelaWeight = _crnet+totalParcelaWeight;            
                             ParcelaDB.parcelaWT=totalParcelaWeight;
                             ParcelaDB.parcelaBunches=parcela95count;
+
+                            minbunchnet = ParcelaDB.minBunch;                            
                              if(minbunchnet==0){ minbunchnet=_crnet;              
                             }else{ minbunchnet = ParcelaDB.minBunch; }                         
                             
@@ -727,7 +798,9 @@ void saveBananaBunchWeigh(decimal _crnet, decimal _tw){
                             totalParcelaWeight = _crnet+totalParcelaWeight;            
                             ParcelaDB.parcelaWT=totalParcelaWeight;
                             ParcelaDB.parcelaBunches=parcela96count;
-                             if(minbunchnet==0){ minbunchnet=_crnet;              
+                            
+                            minbunchnet = ParcelaDB.minBunch;                            
+                            if(minbunchnet==0){ minbunchnet=_crnet;              
                             }else{ minbunchnet = ParcelaDB.minBunch; }                         
                             
                             if(minbunchnet > _crnet){ minbunchnet = _crnet ;}
@@ -900,7 +973,7 @@ void rptMinMaxDisplay(string _r2FarmNo, string _r2parecelaID1, string _r2parecel
 
 }
 
-void rptBunchesperAgeDisplay(void){
+void rptBunchesperAgeDisplay(string _r3FarmNo, string _r3parecelaID1, string _r3parecelaID2, string _r3parecelaID3, int _wk7, int _wk8 , int _wk9, int _wk10, int _wk11, int _wk12){
      clearscreen();   
       reportBunchesperAgeScreen();
 
@@ -1189,20 +1262,144 @@ void reportsMinMaxBunches(void){
 void reportsBunchesperAge(void){
      int numBunchRecords;     
      char ch;
-     int _x;
-     int _y;
-     string testxx[4];              
-     int count;
-     count=0;
-
+     
+     int wk7;
+     int wk8;
+     int wk9;
+     int wk10;
+     int wk11;
+     int wk12;
+     string r3parecelaID1[2];
+     string r3parecelaID2[2];
+     string r3parecelaID3[2];
+     
+     
      clearscreen();    
 
-     showtext(10,10,"RECORDS - "+adj(numBunchRecords,6,0));    
-     showtext(10,30,"PC - "+testxx);
-     showtext(10,50,"WEEK 7 - "+adj(count,6,0));
-      showtext(10,70,"LOOP - "+adj(_x,6,0));
+
+     if(r3FarmNo==""){ r3FarmNo="30";}
+     
+     
+     if(r3FarmNo=="30"){
+          
+           ParcelaDB.pID=88;
+           if(findfield(ParcelaDB, pID)==0){
+              r3parecelaID1 = adj(ParcelaDB.pID,2,0);
+              wk7 = ParcelaDB.bWeek7;
+              wk8 = ParcelaDB.bWeek8;
+              wk9 = ParcelaDB.bWeek9;
+              wk10 = ParcelaDB.bWeek10;
+              wk11 = ParcelaDB.bWeek11;
+              wk12 = ParcelaDB.bWeek12;
+              
+           }
+           
+           ParcelaDB.pID=89;
+           if(findfield(ParcelaDB, pID)==0){
+             r3parecelaID2 = adj(ParcelaDB.pID,2,0);
+              wk7 = ParcelaDB.bWeek7;
+              wk8 = ParcelaDB.bWeek8;
+              wk9 = ParcelaDB.bWeek9;
+              wk10 = ParcelaDB.bWeek10;
+              wk11 = ParcelaDB.bWeek11;
+              wk12 = ParcelaDB.bWeek12;
+           }
+           
+           ParcelaDB.pID=90;
+           if(findfield(ParcelaDB, pID)==0){
+             r3parecelaID3 = adj(ParcelaDB.pID,2,0);
+             wk7 = ParcelaDB.bWeek7;
+             wk8 = ParcelaDB.bWeek8;
+             wk9 = ParcelaDB.bWeek9;
+             wk10 = ParcelaDB.bWeek10;
+             wk11 = ParcelaDB.bWeek11;
+             wk12 = ParcelaDB.bWeek12;            
+           }          
+     
+     }else if(r3FarmNo=="31"){
+           
+           ParcelaDB.pID=91;           
+           if(findfield(ParcelaDB, pID)==0){
+              r3parecelaID1 = adj(ParcelaDB.pID,2,0);
+              wk7 = ParcelaDB.bWeek7;
+              wk8 = ParcelaDB.bWeek8;
+              wk9 = ParcelaDB.bWeek9;
+              wk10 = ParcelaDB.bWeek10;
+              wk11 = ParcelaDB.bWeek11;
+              wk12 = ParcelaDB.bWeek12;
+           }
+           
+           ParcelaDB.pID=92;
+           if(findfield(ParcelaDB, pID)==0){
+              r3parecelaID2 = adj(ParcelaDB.pID,2,0);
+              wk7 = ParcelaDB.bWeek7;
+              wk8 = ParcelaDB.bWeek8;
+              wk9 = ParcelaDB.bWeek9;
+              wk10 = ParcelaDB.bWeek10;
+              wk11 = ParcelaDB.bWeek11;
+              wk12 = ParcelaDB.bWeek12;
+           }
+           
+           ParcelaDB.pID=93;
+           if(findfield(ParcelaDB, pID)==0){
+              r3parecelaID3 = adj(ParcelaDB.pID,2,0);
+              wk7 = ParcelaDB.bWeek7;
+              wk8 = ParcelaDB.bWeek8;
+              wk9 = ParcelaDB.bWeek9;
+              wk10 = ParcelaDB.bWeek10;
+              wk11 = ParcelaDB.bWeek11;
+              wk12 = ParcelaDB.bWeek12;
+           }          
+     
+     }else if (r3FarmNo=="32"){
+          
+           ParcelaDB.pID=94;
+           if(findfield(ParcelaDB, pID)==0){
+              r3parecelaID1 = adj(ParcelaDB.pID,2,0);
+              wk7 = ParcelaDB.bWeek7;
+              wk8 = ParcelaDB.bWeek8;
+              wk9 = ParcelaDB.bWeek9;
+              wk10 = ParcelaDB.bWeek10;
+              wk11 = ParcelaDB.bWeek11;
+              wk12 = ParcelaDB.bWeek12;
+           }
+           
+           ParcelaDB.pID=95;
+           if(findfield(ParcelaDB, pID)==0){
+              r3parecelaID2 = adj(ParcelaDB.pID,2,0);
+              wk7 = ParcelaDB.bWeek7;
+              wk8 = ParcelaDB.bWeek8;
+              wk9 = ParcelaDB.bWeek9;
+              wk10 = ParcelaDB.bWeek10;
+              wk11 = ParcelaDB.bWeek11;
+              wk12 = ParcelaDB.bWeek12;
+           }
+           
+           ParcelaDB.pID=96;
+           if(findfield(ParcelaDB, pID)==0){
+              r3parecelaID3 = adj(ParcelaDB.pID,2,0);
+              wk7 = ParcelaDB.bWeek7;
+              wk8 = ParcelaDB.bWeek8;
+              wk9 = ParcelaDB.bWeek9;
+              wk10 = ParcelaDB.bWeek10;
+              wk11 = ParcelaDB.bWeek11;
+              wk12 = ParcelaDB.bWeek12;
+           } 
+           
+                 
+                    
+     
+     }else {
+           infobox("no farm number received....");
+           delay (2.0);
+     }    
      
 
+
+    // rptBunchesperAgeDisplay(r3FarmNo, r3parecelaID1, r3parecelaID2, r3parecelaID3, wk7, wk8 , wk9, wk10, wk11, wk12);
+     
+     
+     
 
    
 
@@ -1211,7 +1408,19 @@ void reportsBunchesperAge(void){
                  ch=readkey();
                  if(ch==fct6){
                      break;         
-                 }    
+                 }else if(ch==fct1){
+                     r3FarmNo="30";
+                     reportsBunchesperAge();
+                     break;         
+                 }else if(ch==fct2){
+                     r3FarmNo="31";
+                     reportsBunchesperAge();
+                     break;         
+                 }else if(ch==fct3){
+                     r3FarmNo="32";
+                    reportsBunchesperAge();
+                     break;         
+                 }      
 
               }
       }     
@@ -1225,7 +1434,17 @@ void reportsBunchesperAge(void){
 /* ************************************************************** */
 
 void checkPickColor(char ch){
-
+    string pkclrParcela[4];
+    int pkclrPID;
+    int countAge7;
+    int countAge8;
+    int countAge9;
+    int countAge10;
+    int countAge11;
+    int countAge12;
+    int _tempWK;
+    string _tempParcela[2];
+    
     int inSN;
     if(sn!=0){ 
         inSN=sn-1;
@@ -1252,9 +1471,610 @@ void checkPickColor(char ch){
           ribbonColor=rcBrown;
           dpRColor="BRN";
     }       
-    BananaBunch.SN=inSN;
-    BananaBunch.WK=ribbonColor;
+    BananaBunch.SN=inSN;    
+    if(findfield(BananaBunch, SN)==0){
+         _tempWK = BananaBunch.WK;
+         _tempParcela = BananaBunch.PC;
+         BananaBunch.WK=ribbonColor;
+         
+    }                                                    
     insert(BananaBunch);
+    
+    if(inSN!=0){
+    switch(parcelaNo){
+           case 88:
+                 ParcelaDB.pID=88;
+                 if(findfield(ParcelaDB,pID)==0){                        
+                    if(ribbonColor==7){
+                       countAge7 = ParcelaDB.bWeek7;
+                       countAge7++;
+                       ParcelaDB.bWeek7=countAge7; 
+                    }else if(ribbonColor==8){
+                       countAge8 = ParcelaDB.bWeek8;
+                       countAge8++;
+                       ParcelaDB.bWeek8=countAge8;
+                    }else if(ribbonColor==9){
+                       countAge9 = ParcelaDB.bWeek9;
+                       countAge9++;
+                       ParcelaDB.bWeek9=countAge9;                            
+                    }else if(ribbonColor==10){
+                       countAge10 = ParcelaDB.bWeek10;
+                       countAge10++;
+                       ParcelaDB.bWeek10=countAge10;
+                    }else if(ribbonColor==11){
+                       countAge11 = ParcelaDB.bWeek11;
+                       countAge11++;
+                       ParcelaDB.bWeek11=countAge11;
+                    }else if(ribbonColor==12){
+                       countAge12 = ParcelaDB.bWeek12;
+                       countAge12++;
+                       ParcelaDB.bWeek12=countAge12;
+                    }else { infobox("error saving statistics..");}              
+                                              
+                 }
+                 insert(ParcelaDB);  
+                 break;
+          case 89:
+                 ParcelaDB.pID=89;
+                 if(findfield(ParcelaDB,pID)==0){                        
+                    if(ribbonColor==7){
+                       countAge7 = ParcelaDB.bWeek7;
+                       countAge7++;
+                       ParcelaDB.bWeek7=countAge7; 
+                    }else if(ribbonColor==8){
+                       countAge8 = ParcelaDB.bWeek8;
+                       countAge8++;
+                       ParcelaDB.bWeek8=countAge8;
+                    }else if(ribbonColor==9){
+                       countAge9 = ParcelaDB.bWeek9;
+                       countAge9++;
+                       ParcelaDB.bWeek9=countAge9;                            
+                    }else if(ribbonColor==10){
+                       countAge10 = ParcelaDB.bWeek10;
+                       countAge10++;
+                       ParcelaDB.bWeek10=countAge10;
+                    }else if(ribbonColor==11){
+                       countAge11 = ParcelaDB.bWeek11;
+                       countAge11++;
+                       ParcelaDB.bWeek11=countAge11;
+                    }else if(ribbonColor==12){
+                       countAge12 = ParcelaDB.bWeek12;
+                       countAge12++;
+                       ParcelaDB.bWeek12=countAge12;
+                    }else { infobox("error saving statistics..");}              
+                                              
+                 }
+                 insert(ParcelaDB);  
+                 break;             
+           case 90:
+                 ParcelaDB.pID=90;
+                 if(findfield(ParcelaDB,pID)==0){                        
+                    if(ribbonColor==7){
+                       countAge7 = ParcelaDB.bWeek7;
+                       countAge7++;
+                       ParcelaDB.bWeek7=countAge7; 
+                    }else if(ribbonColor==8){
+                       countAge8 = ParcelaDB.bWeek8;
+                       countAge8++;
+                       ParcelaDB.bWeek8=countAge8;
+                    }else if(ribbonColor==9){
+                       countAge9 = ParcelaDB.bWeek9;
+                       countAge9++;
+                       ParcelaDB.bWeek9=countAge9;                            
+                    }else if(ribbonColor==10){
+                       countAge10 = ParcelaDB.bWeek10;
+                       countAge10++;
+                       ParcelaDB.bWeek10=countAge10;
+                    }else if(ribbonColor==11){
+                       countAge11 = ParcelaDB.bWeek11;
+                       countAge11++;
+                       ParcelaDB.bWeek11=countAge11;
+                    }else if(ribbonColor==12){
+                       countAge12 = ParcelaDB.bWeek12;
+                       countAge12++;
+                       ParcelaDB.bWeek12=countAge12;
+                    }else { infobox("error saving statistics..");}              
+                                              
+                 }
+                 insert(ParcelaDB);  
+                 break;                
+           case 91:
+                 ParcelaDB.pID=91;
+                 if(findfield(ParcelaDB,pID)==0){                        
+                    if(ribbonColor==7){
+                       countAge7 = ParcelaDB.bWeek7;
+                       countAge7++;
+                       ParcelaDB.bWeek7=countAge7; 
+                    }else if(ribbonColor==8){
+                       countAge8 = ParcelaDB.bWeek8;
+                       countAge8++;
+                       ParcelaDB.bWeek8=countAge8;
+                    }else if(ribbonColor==9){
+                       countAge9 = ParcelaDB.bWeek9;
+                       countAge9++;
+                       ParcelaDB.bWeek9=countAge9;                            
+                    }else if(ribbonColor==10){
+                       countAge10 = ParcelaDB.bWeek10;
+                       countAge10++;
+                       ParcelaDB.bWeek10=countAge10;
+                    }else if(ribbonColor==11){
+                       countAge11 = ParcelaDB.bWeek11;
+                       countAge11++;
+                       ParcelaDB.bWeek11=countAge11;
+                    }else if(ribbonColor==12){
+                       countAge12 = ParcelaDB.bWeek12;
+                       countAge12++;
+                       ParcelaDB.bWeek12=countAge12;
+                    }else { infobox("error saving statistics..");}              
+                                              
+                 }
+                 insert(ParcelaDB);  
+                 break;      
+           case 92:
+                 ParcelaDB.pID=92;
+                 if(findfield(ParcelaDB,pID)==0){                        
+                    if(ribbonColor==7){
+                       countAge7 = ParcelaDB.bWeek7;
+                       countAge7++;
+                       ParcelaDB.bWeek7=countAge7; 
+                    }else if(ribbonColor==8){
+                       countAge8 = ParcelaDB.bWeek8;
+                       countAge8++;
+                       ParcelaDB.bWeek8=countAge8;
+                    }else if(ribbonColor==9){
+                       countAge9 = ParcelaDB.bWeek9;
+                       countAge9++;
+                       ParcelaDB.bWeek9=countAge9;                            
+                    }else if(ribbonColor==10){
+                       countAge10 = ParcelaDB.bWeek10;
+                       countAge10++;
+                       ParcelaDB.bWeek10=countAge10;
+                    }else if(ribbonColor==11){
+                       countAge11 = ParcelaDB.bWeek11;
+                       countAge11++;
+                       ParcelaDB.bWeek11=countAge11;
+                    }else if(ribbonColor==12){
+                       countAge12 = ParcelaDB.bWeek12;
+                       countAge12++;
+                       ParcelaDB.bWeek12=countAge12;
+                    }else { infobox("error saving statistics..");}              
+                                              
+                 }
+                 insert(ParcelaDB);  
+                 break;
+           case 93:
+                 ParcelaDB.pID=93;
+                 if(findfield(ParcelaDB,pID)==0){                        
+                    if(ribbonColor==7){
+                       countAge7 = ParcelaDB.bWeek7;
+                       countAge7++;
+                       ParcelaDB.bWeek7=countAge7; 
+                    }else if(ribbonColor==8){
+                       countAge8 = ParcelaDB.bWeek8;
+                       countAge8++;
+                       ParcelaDB.bWeek8=countAge8;
+                    }else if(ribbonColor==9){
+                       countAge9 = ParcelaDB.bWeek9;
+                       countAge9++;
+                       ParcelaDB.bWeek9=countAge9;                            
+                    }else if(ribbonColor==10){
+                       countAge10 = ParcelaDB.bWeek10;
+                       countAge10++;
+                       ParcelaDB.bWeek10=countAge10;
+                    }else if(ribbonColor==11){
+                       countAge11 = ParcelaDB.bWeek11;
+                       countAge11++;
+                       ParcelaDB.bWeek11=countAge11;
+                    }else if(ribbonColor==12){
+                       countAge12 = ParcelaDB.bWeek12;
+                       countAge12++;
+                       ParcelaDB.bWeek12=countAge12;
+                    }else { infobox("error saving statistics..");}              
+                                              
+                 }
+                 insert(ParcelaDB);  
+                 break;
+           case 94:
+                 ParcelaDB.pID=94;
+                 if(findfield(ParcelaDB,pID)==0){                        
+                    if(ribbonColor==7){
+                       countAge7 = ParcelaDB.bWeek7;
+                       countAge7++;
+                       ParcelaDB.bWeek7=countAge7; 
+                    }else if(ribbonColor==8){
+                       countAge8 = ParcelaDB.bWeek8;
+                       countAge8++;
+                       ParcelaDB.bWeek8=countAge8;
+                    }else if(ribbonColor==9){
+                       countAge9 = ParcelaDB.bWeek9;
+                       countAge9++;
+                       ParcelaDB.bWeek9=countAge9;                            
+                    }else if(ribbonColor==10){
+                       countAge10 = ParcelaDB.bWeek10;
+                       countAge10++;
+                       ParcelaDB.bWeek10=countAge10;
+                    }else if(ribbonColor==11){
+                       countAge11 = ParcelaDB.bWeek11;
+                       countAge11++;
+                       ParcelaDB.bWeek11=countAge11;
+                    }else if(ribbonColor==12){
+                       countAge12 = ParcelaDB.bWeek12;
+                       countAge12++;
+                       ParcelaDB.bWeek12=countAge12;
+                    }else { infobox("error saving statistics..");}              
+                                              
+                 }
+                 insert(ParcelaDB);  
+                 break;
+             case 95:
+                 ParcelaDB.pID=95;
+                 if(findfield(ParcelaDB,pID)==0){                        
+                    if(ribbonColor==7){
+                       countAge7 = ParcelaDB.bWeek7;
+                       countAge7++;
+                       ParcelaDB.bWeek7=countAge7; 
+                    }else if(ribbonColor==8){
+                       countAge8 = ParcelaDB.bWeek8;
+                       countAge8++;
+                       ParcelaDB.bWeek8=countAge8;
+                    }else if(ribbonColor==9){
+                       countAge9 = ParcelaDB.bWeek9;
+                       countAge9++;
+                       ParcelaDB.bWeek9=countAge9;                            
+                    }else if(ribbonColor==10){
+                       countAge10 = ParcelaDB.bWeek10;
+                       countAge10++;
+                       ParcelaDB.bWeek10=countAge10;
+                    }else if(ribbonColor==11){
+                       countAge11 = ParcelaDB.bWeek11;
+                       countAge11++;
+                       ParcelaDB.bWeek11=countAge11;
+                    }else if(ribbonColor==12){
+                       countAge12 = ParcelaDB.bWeek12;
+                       countAge12++;
+                       ParcelaDB.bWeek12=countAge12;
+                    }else { infobox("error saving statistics..");}              
+                                              
+                 }
+                 insert(ParcelaDB);  
+                 break;
+              case 96:
+                 ParcelaDB.pID=96;
+                 if(findfield(ParcelaDB,pID)==0){                        
+                    if(ribbonColor==7){
+                       countAge7 = ParcelaDB.bWeek7;
+                       countAge7++;
+                       ParcelaDB.bWeek7=countAge7; 
+                    }else if(ribbonColor==8){
+                       countAge8 = ParcelaDB.bWeek8;
+                       countAge8++;
+                       ParcelaDB.bWeek8=countAge8;
+                    }else if(ribbonColor==9){
+                       countAge9 = ParcelaDB.bWeek9;
+                       countAge9++;
+                       ParcelaDB.bWeek9=countAge9;                            
+                    }else if(ribbonColor==10){
+                       countAge10 = ParcelaDB.bWeek10;
+                       countAge10++;
+                       ParcelaDB.bWeek10=countAge10;
+                    }else if(ribbonColor==11){
+                       countAge11 = ParcelaDB.bWeek11;
+                       countAge11++;
+                       ParcelaDB.bWeek11=countAge11;
+                    }else if(ribbonColor==12){
+                       countAge12 = ParcelaDB.bWeek12;
+                       countAge12++;
+                       ParcelaDB.bWeek12=countAge12;
+                    }else { infobox("error saving statistics..");}              
+                                              
+                 }
+                 insert(ParcelaDB);  
+                 break;   
+           default:
+                   infobox("error inserting statistics");
+                   break;                 
+    }
+    
+    
+    //do minus here
+    
+    if(parcelaNo==88){           
+                 ParcelaDB.pID=88;
+                 if(findfield(ParcelaDB,pID)==0){                        
+                    if(_tempWK==7){
+                       countAge7 = ParcelaDB.bWeek7;
+                       countAge7--;
+                       ParcelaDB.bWeek7=countAge7; 
+                    }else if(_tempWK==8){
+                       countAge8 = ParcelaDB.bWeek8;
+                       countAge8--;
+                       ParcelaDB.bWeek8=countAge8;
+                    }else if(_tempWK==9){
+                       countAge9 = ParcelaDB.bWeek9;
+                       countAge9--;
+                       ParcelaDB.bWeek9=countAge9;                            
+                    }else if(_tempWK==10){
+                       countAge10 = ParcelaDB.bWeek10;
+                       countAge10--;
+                       ParcelaDB.bWeek10=countAge10;
+                    }else if(_tempWK==11){
+                       countAge11 = ParcelaDB.bWeek11;
+                       countAge11--;
+                       ParcelaDB.bWeek11=countAge11;
+                    }else if(_tempWK==12){
+                       countAge12 = ParcelaDB.bWeek12;
+                       countAge12--;
+                       ParcelaDB.bWeek12=countAge12;
+                    }else { infobox("error saving statistics..");}              
+                                              
+                 }
+                 insert(ParcelaDB);  
+         }else if(parcelaNo==89){
+          
+                 ParcelaDB.pID=89;
+                 if(findfield(ParcelaDB,pID)==0){                        
+                    if(_tempWK==7){
+                       countAge7 = ParcelaDB.bWeek7;
+                       countAge7--;
+                       ParcelaDB.bWeek7=countAge7; 
+                    }else if(_tempWK==8){
+                       countAge8 = ParcelaDB.bWeek8;
+                       countAge8--;
+                       ParcelaDB.bWeek8=countAge8;
+                    }else if(_tempWK==9){
+                       countAge9 = ParcelaDB.bWeek9;
+                       countAge9--;
+                       ParcelaDB.bWeek9=countAge9;                            
+                    }else if(_tempWK==10){
+                       countAge10 = ParcelaDB.bWeek10;
+                       countAge10--;
+                       ParcelaDB.bWeek10=countAge10;
+                    }else if(_tempWK==11){
+                       countAge11 = ParcelaDB.bWeek11;
+                       countAge11--;
+                       ParcelaDB.bWeek11=countAge11;
+                    }else if(_tempWK==12){
+                       countAge12 = ParcelaDB.bWeek12;
+                       countAge12--;
+                       ParcelaDB.bWeek12=countAge12;
+                    }else { infobox("error saving statistics..");}              
+                                              
+                 }
+                 insert(ParcelaDB);  
+           }else if(parcelaNo==90){
+           
+                 ParcelaDB.pID=90;
+                 if(findfield(ParcelaDB,pID)==0){                        
+                    if(_tempWK==7){
+                       countAge7 = ParcelaDB.bWeek7;
+                       countAge7--;
+                       ParcelaDB.bWeek7=countAge7; 
+                    }else if(_tempWK==8){
+                       countAge8 = ParcelaDB.bWeek8;
+                       countAge8--;
+                       ParcelaDB.bWeek8=countAge8;
+                    }else if(_tempWK==9){
+                       countAge9 = ParcelaDB.bWeek9;
+                       countAge9--;
+                       ParcelaDB.bWeek9=countAge9;                            
+                    }else if(_tempWK==10){
+                       countAge10 = ParcelaDB.bWeek10;
+                       countAge10--;
+                       ParcelaDB.bWeek10=countAge10;
+                    }else if(_tempWK==11){
+                       countAge11 = ParcelaDB.bWeek11;
+                       countAge11--;
+                       ParcelaDB.bWeek11=countAge11;
+                    }else if(_tempWK==12){
+                       countAge12 = ParcelaDB.bWeek12;
+                       countAge12--;
+                       ParcelaDB.bWeek12=countAge12;
+                    }else { infobox("error saving statistics..");}              
+                                              
+                 }
+                 insert(ParcelaDB);  
+           }else if(parcelaNo==91){          
+                 ParcelaDB.pID=91;
+                 if(findfield(ParcelaDB,pID)==0){                        
+                    if(_tempWK==7){
+                       countAge7 = ParcelaDB.bWeek7;
+                       countAge7--;
+                       ParcelaDB.bWeek7=countAge7; 
+                    }else if(_tempWK==8){
+                       countAge8 = ParcelaDB.bWeek8;
+                       countAge8--;
+                       ParcelaDB.bWeek8=countAge8;
+                    }else if(_tempWK==9){
+                       countAge9 = ParcelaDB.bWeek9;
+                       countAge9--;
+                       ParcelaDB.bWeek9=countAge9;                            
+                    }else if(_tempWK==10){
+                       countAge10 = ParcelaDB.bWeek10;
+                       countAge10--;
+                       ParcelaDB.bWeek10=countAge10;
+                    }else if(_tempWK==11){
+                       countAge11 = ParcelaDB.bWeek11;
+                       countAge11--;
+                       ParcelaDB.bWeek11=countAge11;
+                    }else if(_tempWK==12){
+                       countAge12 = ParcelaDB.bWeek12;
+                       countAge12--;
+                       ParcelaDB.bWeek12=countAge12;
+                    }else { infobox("error saving statistics..");}              
+                                              
+                 }
+                 insert(ParcelaDB);  
+            }else if(parcelaNo==92){
+          
+                 ParcelaDB.pID=92;
+                 if(findfield(ParcelaDB,pID)==0){                        
+                    if(_tempWK==7){
+                       countAge7 = ParcelaDB.bWeek7;
+                       countAge7--;
+                       ParcelaDB.bWeek7=countAge7; 
+                    }else if(_tempWK==8){
+                       countAge8 = ParcelaDB.bWeek8;
+                       countAge8--;
+                       ParcelaDB.bWeek8=countAge8;
+                    }else if(_tempWK==9){
+                       countAge9 = ParcelaDB.bWeek9;
+                       countAge9--;
+                       ParcelaDB.bWeek9=countAge9;                            
+                    }else if(_tempWK==10){
+                       countAge10 = ParcelaDB.bWeek10;
+                       countAge10--;
+                       ParcelaDB.bWeek10=countAge10;
+                    }else if(_tempWK==11){
+                       countAge11 = ParcelaDB.bWeek11;
+                       countAge11--;
+                       ParcelaDB.bWeek11=countAge11;
+                    }else if(_tempWK==12){
+                       countAge12 = ParcelaDB.bWeek12;
+                       countAge12--;
+                       ParcelaDB.bWeek12=countAge12;
+                    }else { infobox("error saving statistics..");}              
+                                              
+                 }
+                 insert(ParcelaDB);  
+            }else if(parcelaNo==93){           
+                 ParcelaDB.pID=93;
+                 if(findfield(ParcelaDB,pID)==0){                        
+                    if(_tempWK==7){
+                       countAge7 = ParcelaDB.bWeek7;
+                       countAge7--;
+                       ParcelaDB.bWeek7=countAge7; 
+                    }else if(_tempWK==8){
+                       countAge8 = ParcelaDB.bWeek8;
+                       countAge8--;
+                       ParcelaDB.bWeek8=countAge8;
+                    }else if(_tempWK==9){
+                       countAge9 = ParcelaDB.bWeek9;
+                       countAge9--;
+                       ParcelaDB.bWeek9=countAge9;                            
+                    }else if(_tempWK==10){
+                       countAge10 = ParcelaDB.bWeek10;
+                       countAge10--;
+                       ParcelaDB.bWeek10=countAge10;
+                    }else if(_tempWK==11){
+                       countAge11 = ParcelaDB.bWeek11;
+                       countAge11--;
+                       ParcelaDB.bWeek11=countAge11;
+                    }else if(_tempWK==12){
+                       countAge12 = ParcelaDB.bWeek12;
+                       countAge12--;
+                       ParcelaDB.bWeek12=countAge12;
+                    }else { infobox("error saving statistics..");}              
+                                              
+                 }
+                 insert(ParcelaDB);  
+            }else if(parcelaNo==94){
+
+                 ParcelaDB.pID=94;
+                 if(findfield(ParcelaDB,pID)==0){                        
+                    if(_tempWK==7){
+                       countAge7 = ParcelaDB.bWeek7;
+                       countAge7--;
+                       ParcelaDB.bWeek7=countAge7; 
+                    }else if(_tempWK==8){
+                       countAge8 = ParcelaDB.bWeek8;
+                       countAge8--;
+                       ParcelaDB.bWeek8=countAge8;
+                    }else if(_tempWK==9){
+                       countAge9 = ParcelaDB.bWeek9;
+                       countAge9--;
+                       ParcelaDB.bWeek9=countAge9;                            
+                    }else if(_tempWK==10){
+                       countAge10 = ParcelaDB.bWeek10;
+                       countAge10--;
+                       ParcelaDB.bWeek10=countAge10;
+                    }else if(_tempWK==11){
+                       countAge11 = ParcelaDB.bWeek11;
+                       countAge11--;
+                       ParcelaDB.bWeek11=countAge11;
+                    }else if(_tempWK==12){
+                       countAge12 = ParcelaDB.bWeek12;
+                       countAge12--;
+                       ParcelaDB.bWeek12=countAge12;
+                    }else { infobox("error saving statistics..");}              
+                                              
+                 }
+                 insert(ParcelaDB);  
+             }else if(parcelaNo==95){
+
+                 ParcelaDB.pID=95;
+                 if(findfield(ParcelaDB,pID)==0){                        
+                    if(_tempWK==7){
+                       countAge7 = ParcelaDB.bWeek7;
+                       countAge7--;
+                       ParcelaDB.bWeek7=countAge7; 
+                    }else if(_tempWK==8){
+                       countAge8 = ParcelaDB.bWeek8;
+                       countAge8--;
+                       ParcelaDB.bWeek8=countAge8;
+                    }else if(_tempWK==9){
+                       countAge9 = ParcelaDB.bWeek9;
+                       countAge9--;
+                       ParcelaDB.bWeek9=countAge9;                            
+                    }else if(_tempWK==10){
+                       countAge10 = ParcelaDB.bWeek10;
+                       countAge10--;
+                       ParcelaDB.bWeek10=countAge10;
+                    }else if(_tempWK==11){
+                       countAge11 = ParcelaDB.bWeek11;
+                       countAge11--;
+                       ParcelaDB.bWeek11=countAge11;
+                    }else if(_tempWK==12){
+                       countAge12 = ParcelaDB.bWeek12;
+                       countAge12--;
+                       ParcelaDB.bWeek12=countAge12;
+                    }else { infobox("error saving statistics..");}              
+                                              
+                 }
+                 insert(ParcelaDB);  
+              }else if(parcelaNo==96){
+
+                 ParcelaDB.pID=96;
+                 if(findfield(ParcelaDB,pID)==0){                        
+                    if(ribbonColor==7){
+                       countAge7 = ParcelaDB.bWeek7;
+                       countAge7++;
+                       ParcelaDB.bWeek7=countAge7; 
+                    }else if(ribbonColor==8){
+                       countAge8 = ParcelaDB.bWeek8;
+                       countAge8++;
+                       ParcelaDB.bWeek8=countAge8;
+                    }else if(ribbonColor==9){
+                       countAge9 = ParcelaDB.bWeek9;
+                       countAge9++;
+                       ParcelaDB.bWeek9=countAge9;                            
+                    }else if(ribbonColor==10){
+                       countAge10 = ParcelaDB.bWeek10;
+                       countAge10++;
+                       ParcelaDB.bWeek10=countAge10;
+                    }else if(ribbonColor==11){
+                       countAge11 = ParcelaDB.bWeek11;
+                       countAge11++;
+                       ParcelaDB.bWeek11=countAge11;
+                    }else if(ribbonColor==12){
+                       countAge12 = ParcelaDB.bWeek12;
+                       countAge12++;
+                       ParcelaDB.bWeek12=countAge12;
+                    }else { infobox("error saving statistics..");}              
+                                              
+                 }
+                 insert(ParcelaDB);  
+             }else {
+                   clearscreen();
+                   showtext(10,10,_tempParcela);
+                   infobox("nothing to deduct : "+_tempParcela);
+             }
+    
+    
+    
+   } 
+    
+
+    
 }
 
 

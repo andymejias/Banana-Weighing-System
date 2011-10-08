@@ -23,7 +23,7 @@
 
 // ports reserved for internal communication
 #define PORT_INTERNAL_6000 6000
-#define PORT_INTERNAL_<_2100 2100
+#define PORT_INTERNAL_2100 2100
 
 #define PORT_OPT_SUCCESS 0
 

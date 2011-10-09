@@ -57,6 +57,8 @@ SQL;
 	}
 	
 	public function log_data(
+		$machine_id,
+		$record_id,
 		$farm_id, 
 		$parcel_id, 
 		$lot_id, 
@@ -67,11 +69,13 @@ SQL;
 		$weight
 		){
 		$sql = <<<SQL
-insert into records (created, farm_id, parcel_id, lot_id, gang_id, ribbon_id, age, weigh_date, weight) values 
-(now(), :farm_id, :parcel_id, :lot_id, :gang_id, :ribbon_id, :age, :weigh_date, :weight)
+insert into records (created, machine_id, record_id, farm_id, parcel_id, lot_id, gang_id, ribbon_id, age, weigh_date, weight) values 
+(now(), :machine_id, :record_id, :farm_id, :parcel_id, :lot_id, :gang_id, :ribbon_id, :age, :weigh_date, :weight)
 SQL;
 		$stmt = $this->_cn->prepare($sql);
 		if($stmt){
+			$stmt->bindParam(":machine_id", $machine_id, PDO::PARAM_STR);
+			$stmt->bindParam(":record_id", $record_id, PDO::PARAM_INT);
 			$stmt->bindParam(":farm_id", $farm_id, PDO::PARAM_INT);
 			$stmt->bindParam(":parcel_id", $parcel_id, PDO::PARAM_INT);
 			$stmt->bindParam(":lot_id", $lot_id, PDO::PARAM_INT);

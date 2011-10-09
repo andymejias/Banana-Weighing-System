@@ -33,6 +33,8 @@ function tadeco_record_add($server_variables = array(), $args = array()){
 			"arguments"=>$args
 		));
 
+		$machine_id = "todo"; 	// TODO should use correct machine id
+		$record_id = 1;			// TODO should use correct record id
 		$farm_id = $data->fm;
 		$parcel_id = $data->pc;
 		$lot_id = $data->bk;
@@ -43,6 +45,8 @@ function tadeco_record_add($server_variables = array(), $args = array()){
 		$weight = $data->wr;
 		
 		$db->log_data(
+			$machine_id,
+			$record_id,
 			$farm_id,
 			$parcel_id,
 			$lot_id,

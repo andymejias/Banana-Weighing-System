@@ -25,6 +25,8 @@ comment 'log entries table';
 create table records (
 	id int not null auto_increment comment 'pk, record id',
 	created date not null,
+	machine_id varchar(20) not null,
+	record_id int not null,
 	farm_id int not null,
 	parcel_id int not null,
 	lot_id int not null,

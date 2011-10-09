@@ -9,13 +9,20 @@ include("classes/service.class.inc");
 include("classes/db.class.inc");
 
 $callbacks = array(
-	"POST"=>"do_post"
+	"record/add"=>array(
+		"method"=>"POST",
+		"callback"=>"tadeco_record_add"
+	),
+	"record_update"=>array(
+		"method"=>"POST",
+		"callback"=>"tadeco_record_update"
+	)
 );
 
 $service = new RestService($callbacks);
 $service->handle();
 
-function do_post($server_variables = array(), $args = array()){
+function tadeco_record_add($server_variables = array(), $args = array()){
 	$data = json_decode($args["log"]);
 	
 	try {

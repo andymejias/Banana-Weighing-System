@@ -65,3 +65,7 @@ function tadeco_record_add($server_variables = array(), $args = array()){
 		die("<pre>".print_r($e, true)."</pre>");
 	}
 }
+
+function tadeco_record_update($server_variables = array(), $args = array()){
+	throw new Exception("TODO");
+}

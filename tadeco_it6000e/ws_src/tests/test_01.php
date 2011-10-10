@@ -14,7 +14,7 @@ $json = "{\"fm\":\"999\",\"bk\":\"999\",\"pc\":\"99\",\"wk\":\"99\",\"wr\":\"999
 <body>
 	<div class="messages">
 	</div>
-	<form name="form" method="post" action="../index.php">
+	<form name="form" method="post" action="record/add">
 		<fieldset>
 			<legend>test 01</legend>
 			<input id="hidden" name="log" type="hidden" value="<?php print(htmlentities($json));?>" />

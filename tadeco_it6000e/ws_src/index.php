@@ -47,6 +47,7 @@ function tadeco_record_add($server_variables = array(), $args = array()){
 
 		$machine_id = "todo"; 	// TODO should use correct machine id
 		$record_id = 1;			// TODO should use correct record id
+		$sn = $data->sn;
 		$farm_id = $data->fm;
 		$parcel_id = $data->pc;
 		$lot_id = $data->bk;
@@ -58,6 +59,7 @@ function tadeco_record_add($server_variables = array(), $args = array()){
 		$db->log_data(
 			$machine_id,
 			$record_id,
+			$sn,
 			$farm_id,
 			$parcel_id,
 			$lot_id,
@@ -92,7 +94,8 @@ function tadeco_record_update($server_variables = array(), $args = array()){
 			$parcel_id = $data->parcel_id;
 			$lot_id = $data->lot_id;
 			$gang_id = $data->gang_id;
-			$ribbon_id = $ribbon_id;
+			$ribbon_id = $data->ribbon_id;
+			$weigh_date = $data->weigh_date;
 			
 			$db->log_data_update(
 				$machine_id,
@@ -101,7 +104,8 @@ function tadeco_record_update($server_variables = array(), $args = array()){
 				$parcel_id,
 				$lot_id,
 				$gang_id,
-				$ribbon_id
+				$ribbon_id,
+				$weigh_date
 			);
 			
 			header("HTTP/1.0 200 OK");

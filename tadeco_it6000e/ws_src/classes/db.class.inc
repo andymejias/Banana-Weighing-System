@@ -80,6 +80,7 @@ SQL;
 	public function log_data(
 		$machine_id,
 		$record_id,
+		$sn,
 		$farm_id, 
 		$parcel_id, 
 		$lot_id, 
@@ -89,13 +90,14 @@ SQL;
 		$weight
 		){
 		$sql = <<<SQL
-insert into records (created, machine_id, record_id, farm_id, parcel_id, lot_id, gang_id, ribbon_id, weigh_date, weight) values 
-(now(), :machine_id, :record_id, :farm_id, :parcel_id, :lot_id, :gang_id, :ribbon_id, :weigh_date, :weight)
+insert into records (created, machine_id, record_id, sn, farm_id, parcel_id, lot_id, gang_id, ribbon_id, weigh_date, weight) values 
+(now(), :machine_id, :record_id, :sn, :farm_id, :parcel_id, :lot_id, :gang_id, :ribbon_id, :weigh_date, :weight)
 SQL;
 		$stmt = $this->_cn->prepare($sql);
 		if($stmt){
 			$stmt->bindParam(":machine_id", $machine_id, PDO::PARAM_STR);
 			$stmt->bindParam(":record_id", $record_id, PDO::PARAM_INT);
+			$stmt->bindParam(":sn", $sn, PDO::PARAM_INT);
 			$stmt->bindParam(":farm_id", $farm_id, PDO::PARAM_INT);
 			$stmt->bindParam(":parcel_id", $parcel_id, PDO::PARAM_INT);
 			$stmt->bindParam(":lot_id", $lot_id, PDO::PARAM_INT);
@@ -116,11 +118,13 @@ SQL;
 	public function log_data_update(
 		$machine_id,
 		$record_id,
+		$sn,
 		$farm_id,
 		$parcel_id,
 		$lot_id,
 		$gang_id,
-		$ribbon_id
+		$ribbon_id,
+		$weigh_date
 	){
 		$sql = <<<SQL
 update records set
@@ -131,16 +135,20 @@ gang_id = :gang_id,
 ribbon_id = :ribbon_id
 where machine_id = :machine_id
 and record_id = :record_id
+and sn = :sn
+and weigh_date = :weigh_date
 SQL;
 		$stmt = $this->_cn->prepare($sql);
 		if($stmt){
 			$stmt->bindParam(":machine_id", $machine_id, PDO::PARAM_STR);
 			$stmt->bindParam(":record_id", $record_id, PDO::PARAM_INT);
+			$stmt->bindParam(":sn", $sn, PDO::PARAM_INT);
 			$stmt->bindParam(":farm_id", $farm_id, PDO::PARAM_INT);
 			$stmt->bindParam(":parcel_id", $parcel_id, PDO::PARAM_INT);
 			$stmt->bindParam(":lot_id", $lot_id, PDO::PARAM_INT);
 			$stmt->bindParam(":gang_id", $gang_id, PDO::PARAM_INT);
 			$stmt->bindParam(":ribbon_id", $ribbon_id, PDO::PARAM_INT);
+			$stmt->bindParam(":weigh_date", $weigh_date, PDO::PARAM_STR);
 			if(!$stmt->execute()){
 				$err = print_r($stmt->errorInfo(), true);
 				throw new Exception("Unable to execute log data statement object. {$err}");
@@ -154,6 +162,7 @@ SQL;
 	public function log_sampling(
 		$machine_id,
 		$record_id,
+		$sn,
 		$bc,
 		$fl,
 		$nh,
@@ -161,13 +170,14 @@ SQL;
 		$hc
 	){
 		$sql = <<<SQL
-insert into sampling (created, machine_id, record_id, bc, fl, nc, fc, hc
-values (now(), :machine_id, :record_id, :bc, :fl, :nc, :fc, :hc)
+insert into sampling (created, machine_id, record_id, sn, bc, fl, nc, fc, hc
+values (now(), :machine_id, :record_id, :sn, :bc, :fl, :nc, :fc, :hc)
 SQL;
 		$stmt = $this->_cn->prepare($sql);
 		if($stmt){
 			$stmt->bindParam(":machine_id", $machine_id, PDO::PARAM_INT);
 			$stmt->bindParam(":record_id", $record_id, PDO::PARAM_INT);
+			$stmt->bindParam(":sn", $sn, PDO::PARAM_INT);
 			$stmt->bindParam(":bc", $bc);
 			$stmt->bindParam(":fl", $fl);
 			$stmt->bindParam(":nh", $nh);

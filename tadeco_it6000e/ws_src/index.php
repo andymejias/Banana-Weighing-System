@@ -90,6 +90,7 @@ function tadeco_record_update($server_variables = array(), $args = array()){
 			
 			$machine_id = $data->machine_id;
 			$record_id = $data->record_id;
+			$sn = $data->sn;
 			$farm_id = $data->farm_id;
 			$parcel_id = $data->parcel_id;
 			$lot_id = $data->lot_id;
@@ -100,6 +101,7 @@ function tadeco_record_update($server_variables = array(), $args = array()){
 			$db->log_data_update(
 				$machine_id,
 				$record_id,
+				$sn,
 				$farm_id,
 				$parcel_id,
 				$lot_id,
@@ -132,6 +134,7 @@ function tadeco_sampling_add($server_variables = array(), $args = array()){
 			
 			$machine_id = $data->machine_id;
 			$record_id = $data->record_id;
+			$sn = $data->sn;
 			$bc = $data->bc;
 			$fl = $data->fl;
 			$nh = $data->nh;
@@ -141,6 +144,7 @@ function tadeco_sampling_add($server_variables = array(), $args = array()){
 			$db->log_sampling(
 				$machine_id,
 				$record_id,
+				$sn,
 				$bc,
 				$fl,
 				$nh,

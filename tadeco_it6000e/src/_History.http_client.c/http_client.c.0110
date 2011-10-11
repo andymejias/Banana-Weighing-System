@@ -1,0 +1,36 @@
+/*
+ * http_client.c
+ *
+ * http client for it6000e systec weighing scale
+ *
+ *  Created on: Sep 27, 2011
+ *      Author: ferd
+ */
+
+bool http_client_valid_ip(string ip){
+	int i;
+	i = cssub(ip, '.', 0);
+
+	return (true);
+}
+
+/**
+ * Does a http post to a web server
+ *
+ */
+void http_client_post(int channel, string target_ip, string target_port, string path, string host_header, string post_data){
+      string s[255];
+      int ret;
+      ret = popen(channel, concat(target_ip, ":", target_port));
+      if(ret == PORT_OPT_SUCCESS){
+				s = concat("POST http://", target_ip, "/", path, " HTTP/1.1", "\n");
+				s = concat(s, "HOST: ", host_header, "\n");
+				s = concat(s, "Content-Type: application/x-form-urlencoded\n");
+				s = concat(s, "Content-Length: ", length(post_data), "\n");
+        s = concat(s, post_data, "\n)";
+        infobox(s);
+        delay(10);
+        ret = pwritestring(channel, s, length(s));
+        pclose(channel);
+			}
+}

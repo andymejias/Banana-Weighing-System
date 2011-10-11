@@ -14,11 +14,11 @@ class RestService {
 	}
 	
 	public function handle(){
-		$path = $_SERVER["REQUEST_URI"];
+		$path = trim($_SERVER["REQUEST_URI"], "/");
 		if(isset($this->_callbacks[$path])){
 			$callback = $this->_callbacks[$path];
 			if($callback["method"] == $_SERVER["REQUEST_METHOD"]){
-				$function = $callback["method"];
+				$function = $callback["callback"];
 				$args = array();
 				parse_str(file_get_contents("php://input"), $args);
 				$params = array(

@@ -46,7 +46,6 @@ function tadeco_record_add($server_variables = array(), $args = array()){
 		));
 
 		$machine_id = "todo"; 	// TODO should use correct machine id
-		$record_id = 1;			// TODO should use correct record id
 		$sn = $data->sn;
 		$farm_id = $data->fm;
 		$parcel_id = $data->pc;
@@ -58,7 +57,6 @@ function tadeco_record_add($server_variables = array(), $args = array()){
 		
 		$db->log_data(
 			$machine_id,
-			$record_id,
 			$sn,
 			$farm_id,
 			$parcel_id,
@@ -89,7 +87,6 @@ function tadeco_record_update($server_variables = array(), $args = array()){
 			$data = json_decode($args["log"]);
 			
 			$machine_id = $data->machine_id;
-			$record_id = $data->record_id;
 			$sn = $data->sn;
 			$farm_id = $data->farm_id;
 			$parcel_id = $data->parcel_id;
@@ -100,7 +97,6 @@ function tadeco_record_update($server_variables = array(), $args = array()){
 			
 			$db->log_data_update(
 				$machine_id,
-				$record_id,
 				$sn,
 				$farm_id,
 				$parcel_id,
@@ -133,7 +129,6 @@ function tadeco_sampling_add($server_variables = array(), $args = array()){
 			$data = json_decode($args["log"]);
 			
 			$machine_id = $data->machine_id;
-			$record_id = $data->record_id;
 			$sn = $data->sn;
 			$bc = $data->bc;
 			$fl = $data->fl;
@@ -143,7 +138,6 @@ function tadeco_sampling_add($server_variables = array(), $args = array()){
 			
 			$db->log_sampling(
 				$machine_id,
-				$record_id,
 				$sn,
 				$bc,
 				$fl,

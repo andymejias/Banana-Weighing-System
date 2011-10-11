@@ -1,0 +1,314 @@
+<?php
+function tadeco_permissions(){
+	return array("view report");
+}
+
+function tadeco_menu(){
+	return array(
+		"tadeco/report"=>array(
+			"title"=>"Report",
+			"description"=>"list of tadeco reports",
+			"page callback"=>"tadeco_report_list",
+			"access arguments"=>array("view report"),
+			"type"=>MENU_NORMAL_ITEM
+		),
+		"tadeco/report/report1"=>array(
+			"title"=>"Report 1",
+			"description"=>"average weight and total number of bunches",
+			"page callback"=>"drupal_get_form",
+			"page arguments"=>array("tadeco_report_1"),
+			"access arguments"=>array("view report"),
+			"type"=>MENU_NORMAL_ITEM
+		),
+		"tadeco/report/report2"=>array(
+			"title"=>"Report 2",
+			"description"=>"minimum and maximum bunch weight",
+			"page callback"=>"drupal_get_form",
+			"page arguments"=>array("tadeco_report_2"),
+			"access arguments"=>array("view report"),
+			"type"=>MENU_NORMAL_ITEM
+		),
+		"tadeco/report/report3"=>array(
+			"title"=>"Report 3",
+			"description"=>"total bunches",
+			"page callback"=>"drupal_get_form",
+			"page arguments"=>array("tadeco_report_3"),
+			"access arguments"=>array("view report"),
+			"type"=>MENU_NORMAL_ITEM
+		)
+	);
+}
+
+function tadeco_report_list(){
+	
+	$s = "";
+	$s .= "<div id=\"reports-list\">\n";
+	$s .= "\t<ul>\n";
+	$s .= "\t\t<li>".l("Report 1","tadeco/report/report1")."</li>\n";
+	$s .= "\t\t<li>".l("Report 2","tadeco/report/report2")."</li>\n";
+	$s .= "\t\t<li>".l("Report 3","tadeco/report/report3")."</li>\n";
+	$s .= "\t</ul>\n";
+	$s .= "</div><!-- #reports-list -->\n";
+	return $s;
+	
+}
+
+function tadeco_report_1($form, $form_state){
+
+	$form["start"] = array(
+		"#type"=>"date_popup",
+		"#title"=>t("Start"),
+		"#date_format"=>"M/d/Y",
+		"#required"=>true
+	);
+	
+	$form["end"] = array(
+		"#type"=>"date_popup",
+		"#title"=>t("End"),
+		"#date_format"=>"M/d/Y",
+		"#required"=>true
+	);
+	
+	$form["actions"]["submit"] = array(
+		"#type"=>"submit",
+		"#value"=>t("Submit"),
+		"#name"=>"btn-name"
+	);
+	
+	$form["results"] = array(
+		"#type"=>"fieldset",
+		"#title"=>t("Results")
+	);
+	
+	if(isset($form_state["values"]["start"]) && isset($form_state["values"]["end"])){
+		$qry = db_select("records","a")
+			->fields("a", array("farm_id", "parcel_id"));
+		
+		$qry->addExpression("count(*)", "count_bunches");
+		$qry->addExpression("avg(a.weight)", "avg_bunches");
+		$qry->condition("a.weigh_date", $form_state["values"]["start"], ">=");
+		$qry->condition("a.weigh_date", $form_state["values"]["end"], "<=");
+		$qry->groupBy("a.farm_id");
+		$qry->groupBy("a.parcel_id");
+		$results = $qry->execute()
+			->fetchAll(PDO::FETCH_ASSOC);
+		
+		$s = "";
+		$s .= "<div id=\"report-1\">\n";
+		$s .= "\t<table>\n";
+		$s .= "\t<caption>Average weight and count of banana bunches</caption>\n";
+		$s .= "\t\t<thead>\n";
+		$s .= "\t\t\t<tr>\n";
+		$s .= "\t\t\t<th>Farm</th>";
+		$s .= "\t\t\t<th>Parcel</th>";
+		$s .= "\t\t\t<th>Count</th>";
+		$s .= "\t\t\t<th>Average</th>";
+		$s .= "\t\t\t</tr>\n";
+		$s .= "\t\t</thead>\n";
+		$s .= "\t\t<tfoot>\n";
+		$s .= "\t\t\t<th>Farm</th>";
+		$s .= "\t\t\t<th>Parcel</th>";
+		$s .= "\t\t\t<th>Count</th>";
+		$s .= "\t\t\t<th>Average</th>";
+		$s .= "\t\t</tfoot>\n";
+		$s .= "\t\t<tbody>\n";
+		
+		foreach($results as $r){
+			$s .= "\t\t<tr>\n";
+			$s .= "\t\t\t<td>{$r["farm_id"]}</td>\n";
+			$s .= "\t\t\t<td>{$r["parcel_id"]}</td>\n";
+			$s .= "\t\t\t<td>{$r["count_bunches"]}</td>\n";
+			$s .= "\t\t\t<td>{$r["avg_bunches"]}</td>\n";
+			$s .= "\t\t</tr>\n";
+		}
+		
+		$s .= "\t\t</tbody>\n";
+		$s .= "\t</table>\n";
+		$s .= "</div><!-- #report-1 -->\n";	
+		
+		$form["results"]["results"] = array(
+			"#markup"=>$s,
+		);
+	}
+
+	return $form;
+}
+
+function tadeco_report_1_submit($form, &$form_state){
+	$form_state["rebuild"] = true;
+}
+
+function tadeco_report_2($form, $form_state){
+
+	$form["start"] = array(
+			"#type"=>"date_popup",
+			"#title"=>t("Start"),
+			"#date_format"=>"M/d/Y",
+			"#required"=>true
+	);
+	
+	$form["end"] = array(
+			"#type"=>"date_popup",
+			"#title"=>t("End"),
+			"#date_format"=>"M/d/Y",
+			"#required"=>true
+	);
+	
+	$form["actions"]["submit"] = array(
+			"#type"=>"submit",
+			"#value"=>t("Submit"),
+			"#name"=>"btn-name"
+	);
+	
+	$form["results"] = array(
+			"#type"=>"fieldset",
+			"#title"=>t("Results")
+	);
+	
+	if(isset($form_state["values"]["start"]) && $form_state["values"]["end"]){
+
+		$qry = db_select("records","a")
+			->fields("a", array("farm_id", "parcel_id"));
+		
+		$qry->addExpression("min(a.weight)", "min_weight");
+		$qry->addExpression("max(a.weight)", "max_weight");
+		$qry->condition("a.weigh_date", $form_state["values"]["start"], ">=");
+		$qry->condition("a.weigh_date", $form_state["values"]["end"], "<=");
+		$qry->groupBy("a.farm_id");
+		$qry->groupBy("a.parcel_id");
+		$results = $qry->execute()
+			->fetchAll(PDO::FETCH_ASSOC);
+		
+		$s = "";
+		$s .= "<div id=\"report-2\">\n";
+		$s .= "\t<table>\n";
+		$s .= "\t<caption>Minimum and Maximum banana bunch weight</caption>\n";
+		$s .= "\t\t<thead>\n";
+		$s .= "\t\t\t<tr>\n";
+		$s .= "\t\t\t<th>Farm</th>";
+		$s .= "\t\t\t<th>Parcel</th>";
+		$s .= "\t\t\t<th>Minimum Weight</th>";
+		$s .= "\t\t\t<th>Maximum Weight</th>";
+		$s .= "\t\t\t</tr>\n";
+		$s .= "\t\t</thead>\n";
+		$s .= "\t\t<tfoot>\n";
+		$s .= "\t\t\t<th>Farm</th>";
+		$s .= "\t\t\t<th>Parcel</th>";
+		$s .= "\t\t\t<th>Minimum Weight</th>";
+		$s .= "\t\t\t<th>Maximum Weight</th>";
+		$s .= "\t\t</tfoot>\n";
+		$s .= "\t\t<tbody>\n";
+		
+		foreach($results as $r){
+			$s .= "\t\t<tr>\n";
+			$s .= "\t\t\t<td>{$r["farm_id"]}</td>\n";
+			$s .= "\t\t\t<td>{$r["parcel_id"]}</td>\n";
+			$s .= "\t\t\t<td>{$r["min_weight"]}</td>\n";
+			$s .= "\t\t\t<td>{$r["max_weight"]}</td>\n";
+			$s .= "\t\t</tr>\n";
+		}
+		
+		$s .= "\t\t</tbody>\n";
+		$s .= "\t</table>\n";
+		$s .= "</div><!-- #report-2 -->\n";
+		
+		$form["results"]["results"] = array(
+			"#markup"=>$s,
+		);
+		
+	}
+	
+	return $form;
+	
+}
+
+function tadeco_report_2_submit($form, &$form_state){
+	$form_state["rebuild"] = true;
+}
+
+function tadeco_report_3($form, $form_state){
+	
+	$form["start"] = array(
+			"#type"=>"date_popup",
+			"#title"=>t("Start"),
+			"#date_format"=>"M/d/Y",
+			"#required"=>true
+	);
+	
+	$form["end"] = array(
+			"#type"=>"date_popup",
+			"#title"=>t("End"),
+			"#date_format"=>"M/d/Y",
+			"#required"=>true
+	);
+	
+	$form["actions"]["submit"] = array(
+			"#type"=>"submit",
+			"#value"=>t("Submit"),
+			"#name"=>"btn-name"
+	);
+	
+	$form["results"] = array(
+			"#type"=>"fieldset",
+			"#title"=>t("Results")
+	);
+	
+	if(isset($form_state["values"]["start"]) && $form_state["values"]["end"]){
+	
+		$qry = db_select("records","a")
+		->fields("a", array("farm_id", "parcel_id", "ribbon_id"));
+	
+		$qry->addExpression("sum(a.weight)", "total_weight");
+		$qry->condition("a.weigh_date", $form_state["values"]["start"], ">=");
+		$qry->condition("a.weigh_date", $form_state["values"]["end"], "<=");
+		$qry->groupBy("a.ribbon_id");
+		$qry->groupBy("a.farm_id");
+		$qry->groupBy("a.parcel_id");
+		$results = $qry->execute()
+		->fetchAll(PDO::FETCH_ASSOC);
+	
+		$s = "";
+		$s .= "<div id=\"report-2\">\n";
+		$s .= "\t<table>\n";
+		$s .= "\t\t<caption>Total weight</caption>\n";
+		$s .= "\t\t<thead>\n";
+		$s .= "\t\t\t<tr>\n";
+		$s .= "\t\t\t<th>Farm</th>";
+		$s .= "\t\t\t<th>Parcel</th>";
+		$s .= "\t\t\t<th>Age</th>";
+		$s .= "\t\t\t<th>Total Weight</th>";
+		$s .= "\t\t\t</tr>\n";
+		$s .= "\t\t</thead>\n";
+		$s .= "\t\t<tfoot>\n";
+		$s .= "\t\t\t<th>Farm</th>";
+		$s .= "\t\t\t<th>Parcel</th>";
+		$s .= "\t\t\t<th>Age</th>";
+		$s .= "\t\t\t<th>Total Weight</th>";
+		$s .= "\t\t</tfoot>\n";
+		$s .= "\t\t<tbody>\n";
+	
+		foreach($results as $r){
+			$s .= "\t\t<tr>\n";
+			$s .= "\t\t\t<td>{$r["farm_id"]}</td>\n";
+			$s .= "\t\t\t<td>{$r["parcel_id"]}</td>\n";
+			$s .= "\t\t\t<td>{$r["ribbon_id"]}</td>\n";
+			$s .= "\t\t\t<td>{$r["total_weight"]}</td>\n";
+			$s .= "\t\t</tr>\n";
+		}
+	
+		$s .= "\t\t</tbody>\n";
+		$s .= "\t</table>\n";
+		$s .= "</div><!-- #report-2 -->\n";
+	
+		$form["results"]["results"] = array(
+				"#markup"=>$s,
+		);
+	
+	}
+	
+	return $form;	
+}
+
+function tadeco_report_3_submit($form, &$form_state){
+	$form_state["rebuild"] = true;
+}

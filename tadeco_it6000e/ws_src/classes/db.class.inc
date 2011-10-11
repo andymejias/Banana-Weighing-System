@@ -1,6 +1,7 @@
 <?php
 
 define("LOG_DATA",1);
+define("LOG_EXCEPTION",2);
 
 /**
  * Database class
@@ -44,7 +45,7 @@ SQL;
 		if($stmt){
 			$log_type = LOG_DATA;
 			$stmt->bindParam(":type_id", $log_type, PDO::PARAM_INT);
-			$stmt->bindParam(":entry", print_r($request_data, true), PDO::PARAM_STR, 1000);
+			$stmt->bindParam(":entry", print_r($request_data, true), PDO::PARAM_STR, 4000);
 			if(!$stmt->execute()){
 				$err = print_r($stmt->errorInfo(), true);
 				throw new Exception("Unable to execute log statement object: {$err}");
@@ -54,6 +55,26 @@ SQL;
 			throw new Exception("Unable to prepare log statement object: {$err}");
 		}
 		
+	}
+
+	public function log_exception($exception){
+		$sql = <<<SQL
+insert into log (type_id, created, entry) values
+(:type_id, now(), :entry)
+SQL;
+		$stmt = $this->_cn->prepare($sql);
+		if($stmt){
+			$log_type = LOG_EXCEPTION;
+			$stmt->bindParam(":type_id", $log_type, PDO::PARAM_INT);
+				$stmt->bindParam(":entry", print_r($exception, true), PDO::PARAM_STR, 4000);
+			if(!$stmt->execute()){
+				$err = print_r($stmt->errorInfo(), true);
+				throw new Exception("Unable to execute log statement object: {$err}");
+			}
+		} else {
+			$err = print_r($this->_cn->errorInfo(), true);
+			throw new Exception("Unable to prepare log statement object: {$err}");
+		}
 	}
 	
 	public function log_data(
@@ -68,8 +89,8 @@ SQL;
 		$weight
 		){
 		$sql = <<<SQL
-insert into records (created, machine_id, record_id, farm_id, parcel_id, lot_id, gang_id, ribbon_id, age, weigh_date, weight) values 
-(now(), :machine_id, :record_id, :farm_id, :parcel_id, :lot_id, :gang_id, :ribbon_id, :age, :weigh_date, :weight)
+insert into records (created, machine_id, record_id, farm_id, parcel_id, lot_id, gang_id, ribbon_id, weigh_date, weight) values 
+(now(), :machine_id, :record_id, :farm_id, :parcel_id, :lot_id, :gang_id, :ribbon_id, :weigh_date, :weight)
 SQL;
 		$stmt = $this->_cn->prepare($sql);
 		if($stmt){

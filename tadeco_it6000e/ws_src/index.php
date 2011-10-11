@@ -23,8 +23,15 @@ $callbacks = array(
 	)
 );
 
-$service = new RestService($callbacks);
-$service->handle();
+try {
+	$service = new RestService($callbacks);
+	$service->handle();
+} catch(Exception $e){
+	$db = Db::get_instance();
+	if($db){
+		$db->log_exception($e);
+	}
+}
 
 function tadeco_record_add($server_variables = array(), $args = array()){
 	$data = json_decode($args["log"]);
@@ -37,8 +44,6 @@ function tadeco_record_add($server_variables = array(), $args = array()){
 			"server_variables"=>$server_variables,
 			"arguments"=>$args
 		));
-		
-		
 
 		$machine_id = "todo"; 	// TODO should use correct machine id
 		$record_id = 1;			// TODO should use correct record id
@@ -66,7 +71,7 @@ function tadeco_record_add($server_variables = array(), $args = array()){
 		exit();
 		
 	} catch(Exception $e){
-		die("<pre>".print_r($e, true)."</pre>");
+		throw $e;
 	}
 }
 
@@ -107,7 +112,7 @@ function tadeco_record_update($server_variables = array(), $args = array()){
 			throw new Exception("Log data not found");
 		}
 	}catch(Exception $e){
-		die("<pre>".print_r($e, true)."</pre>");
+		throw $e;
 	}
 }
 
@@ -143,9 +148,9 @@ function tadeco_sampling_add($server_variables = array(), $args = array()){
 			print("ok");
 			exit();
 		} else {
-			throw new Exception("Log data not found");
+			throw new Exception("Log sampling data not found");
 		}
 	}catch(Exception $e){
-		die("<pre>".print_r($e, true)."</pre>");
+		throw $e;
 	}
 }

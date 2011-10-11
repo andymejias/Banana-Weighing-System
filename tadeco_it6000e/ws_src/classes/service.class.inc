@@ -14,7 +14,10 @@ class RestService {
 	}
 	
 	public function handle(){
-		$path = trim($_SERVER["REQUEST_URI"], "/");
+		$path = $_SERVER["REQUEST_URI"];
+		$path = str_replace("http://", "", $path);
+		$path = str_replace($_SERVER["SERVER_NAME"], "", $path);
+		$path = trim($path, "/");
 		if(isset($this->_callbacks[$path])){
 			$callback = $this->_callbacks[$path];
 			if($callback["method"] == $_SERVER["REQUEST_METHOD"]){
@@ -28,11 +31,11 @@ class RestService {
 				call_user_func_array($function, $params);
 			} else {
 				// throw 404 not found
-				throw new Exception("Path not found");
+				throw new Exception("Path not found: {$path}");
 			}
 		} else {
 			// throw 404 not found
-			throw new Exception("Path not found");
+			throw new Exception("Path not found: {$path}");
 		}
 		
 		$method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : "POST";

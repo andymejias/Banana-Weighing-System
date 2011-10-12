@@ -79,7 +79,6 @@ SQL;
 	
 	public function log_data(
 		$machine_id,
-		$record_id,
 		$sn,
 		$farm_id, 
 		$parcel_id, 
@@ -90,7 +89,7 @@ SQL;
 		$weight
 		){
 		$sql = <<<SQL
-insert into records (created, machine_id, record_id, sn, farm_id, parcel_id, lot_id, gang_id, ribbon_id, weigh_date, weight) values 
+insert into records (created, machine_id, sn, farm_id, parcel_id, lot_id, gang_id, ribbon_id, weigh_date, weight) values 
 (now(), :machine_id, :sn, :farm_id, :parcel_id, :lot_id, :gang_id, :ribbon_id, :weigh_date, :weight)
 SQL;
 		$stmt = $this->_cn->prepare($sql);
@@ -116,7 +115,6 @@ SQL;
 	
 	public function log_data_update(
 		$machine_id,
-		$record_id,
 		$sn,
 		$farm_id,
 		$parcel_id,
@@ -158,7 +156,6 @@ SQL;
 	
 	public function log_sampling(
 		$machine_id,
-		$record_id,
 		$sn,
 		$bc,
 		$fl,
@@ -167,7 +164,7 @@ SQL;
 		$hc
 	){
 		$sql = <<<SQL
-insert into sampling (created, machine_id, record_id, sn, bc, fl, nc, fc, hc
+insert into sampling (created, machine_id, sn, bc, fl, nc, fc, hc
 values (now(), :machine_id, :sn, :bc, :fl, :nc, :fc, :hc)
 SQL;
 		$stmt = $this->_cn->prepare($sql);

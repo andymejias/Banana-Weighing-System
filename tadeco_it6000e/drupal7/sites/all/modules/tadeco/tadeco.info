@@ -1,0 +1,6 @@
+name = Tadeco
+description = "Tadeco reporting"
+package = Tadeco
+version = 1.0
+core = 7.x
+configure = admin/config/tadeco

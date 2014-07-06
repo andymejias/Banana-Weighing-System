@@ -3,8 +3,8 @@ error_reporting(E_ALL);
 ini_set('display_errors', TRUE);
 ini_set('display_startup_errors', TRUE);
 
-
-$json = "{\"fm\":\"999\",\"bk\":\"999\",\"pc\":\"99\",\"wk\":\"99\",\"wr\":\"99999\",\"cc\":\"999\",\"dt\":\"10/07/2011 10:10\"}";
+//$json = "{\"param1\":\"value1\",\"param2\":\"value2\"}";
+$json = "{\"fm\":\" 30\",\"bk\":\"30A\",\"pc\":\" 88\",\"wk\":\"  7\",\"wr\":\" 51.0\",\"cc\":\"11\",\"dt\":\"2011-10-08 14:35\"}";
 ?>
 <DOCTYPE html>
 <html>
@@ -14,7 +14,7 @@ $json = "{\"fm\":\"999\",\"bk\":\"999\",\"pc\":\"99\",\"wk\":\"99\",\"wr\":\"999
 <body>
 	<div class="messages">
 	</div>
-	<form name="form" method="post" action="../index.php">
+	<form name="form" method="post" action="http://tadecows.local/record/add">
 		<fieldset>
 			<legend>test 01</legend>
 			<input id="hidden" name="log" type="hidden" value="<?php print(htmlentities($json));?>" />

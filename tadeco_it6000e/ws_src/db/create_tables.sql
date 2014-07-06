@@ -25,6 +25,8 @@ comment 'log entries table';
 create table records (
 	id int not null auto_increment comment 'pk, record id',
 	created date not null,
+	machine_id varchar(20) not null,
+	sn int not null,
 	farm_id int not null,
 	parcel_id int not null,
 	lot_id int not null,
@@ -36,4 +38,19 @@ create table records (
 	primary key (id)
 )
 engine innodb
-comment 'records'
+comment 'records';
+
+create table sampling (
+	id int not null auto_increment,
+	created date not null,
+	machine_id varchar(20) not null,
+	sn int not null,
+	bc	decimal(9,3) not null comment 'bunch calibration',
+	fl decimal(9,3) not null comment 'finger length',
+	nh decimal(9,3) not null comment 'number of hands',
+	fc decimal(9,3) not null comment 'number of fingers',
+	hc decimal(9,3) not null comment 'harvesting code',
+	primary key (id)
+)
+engine innodb
+comment 'sampling';
